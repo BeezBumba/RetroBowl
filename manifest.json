@@ -1,0 +1,20 @@
+{
+  "short_name": "Retro Bowl",
+  "name": "Retro Bowl",
+  "icons": [
+    {
+      "src": "icons/favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "icons/icon192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}
