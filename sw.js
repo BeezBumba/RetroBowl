@@ -1,12 +1,15 @@
 const CACHE_NAME = 'retro-bowl';
 const urlsToCache = [
   '/',
-  '/assets',
-  '/index.html',
-  '/script.js',
-  '/manifest.json',
-  '/basketball_legends_2019.min.js',
-  '/basketball-stars.png'
+  '/fix',
+  '/html5game',
+  '/icons',
+  '/img',
+  '/js',
+  'index.html',
+  'manifest.json',
+  'production.html',
+  'script.js'
 ];
 
 self.addEventListener('install', event => {
