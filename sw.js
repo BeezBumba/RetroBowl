@@ -15,16 +15,6 @@ self.addEventListener('message', (event) => {
     }
 });
 
-self.addEventListener('message', (event) => {
-    if (event.data.type === 'UPDATE_CACHE') {
-        event.waitUntil(
-            caches.open(KEY)
-                .then( (cache) => {
-                    return cache.addAll(event.data.payload);
-                })
-        );
-    }
-});
 
 self.addEventListener("fetch", (e) => {
   e.respondWith(
