@@ -1,34 +1,49 @@
-const CACHE_NAME = 'retro-bowl';
-const urlsToCache = [
-  '/',
-  '/fix',
-  '/html5game',
-  '/icons',
-  '/img',
-  '/js',
-  'index.html',
-  'manifest.json',
-  'production.html',
-  'script.js'
-];
+const KEY = 'RETROBOWL';
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-  );
+self.addEventListener('install', (event) => {
+    event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
+self.addEventListener('message', (event) => {
+    if (event.data.type === 'CACHE_URLS') {
+        event.waitUntil(
+            caches.open(KEY)
+                .then( (cache) => {
+                    return cache.addAll(event.data.payload);
+                })
+        );
+    }
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data.type === 'UPDATE_CACHE') {
+        event.waitUntil(
+            caches.open(KEY)
+                .then( (cache) => {
+                    return cache.addAll(event.data.payload);
+                })
+        );
+    }
+});
+
+self.addEventListener("fetch", (e) => {
+  e.respondWith(
+    (async () => {
+      try {
+        console.log(`[Service Worker] Attempting to serve resource from cache: ${e.request.url}`);
+        const r = await caches.match(e.request);
+        if (r) {
+          return r;
         }
-        return fetch(event.request);
-      })
+        console.log(`[Service Worker] Attempting live fetch: ${e.request.url}`);
+        const response = await fetch(e.request);
+        const cache = await caches.open(KEY);
+        console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
+        cache.put(e.request, response.clone());
+        return response;
+      } catch (err) {
+        console.error(`[Service Worker] Fetch failed: ${err}`);
+      }
+    })()
   );
 });
