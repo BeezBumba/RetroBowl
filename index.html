@@ -125,5 +125,46 @@
             return true; // Prevents the default browser error handling
         };
     </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Storage Manager</title>
+</head>
+<body>
+    <script>
+        // Function to download local storage data
+        function downloadLocalStorage() {
+            const data = JSON.stringify(localStorage);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'localStorage.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to load data into local storage
+        function loadLocalStorage() {
+            fetch('RetroBowl.0.savedata.ini')
+                .then(response => response.text())
+                .then(data => {
+                    localStorage.setItem('RetroBowl.0.savedata.ini', data);
+                    alert('File loaded into local storage');
+                })
+                .catch(error => console.error('Error loading file:', error));
+        }
+
+        // Keyboard event listener for ` and . keys
+        document.addEventListener('keydown', (event) => {
+            if (event.key === '`') {
+                downloadLocalStorage();
+            } else if (event.key === '.') {
+                loadLocalStorage();
+            }
+        });
+    </script>
 </body>
 </html>
