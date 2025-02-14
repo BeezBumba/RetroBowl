@@ -134,42 +134,45 @@
 </head>
 <body>
     <script>
-        // Function to download local storage data
+        document.addEventListener('keydown', function (event) {
+            if (event.key === '`') {
+                downloadLocalStorage();
+            } else if (event.key === '.') {
+                openFileSelector();
+            }
+        });
+
         function downloadLocalStorage() {
-            const data = JSON.stringify(localStorage);
-            const blob = new Blob([data], { type: 'application/json' });
+            const localStorageData = JSON.stringify(localStorage);
+            const blob = new Blob([localStorageData], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'localStorage.json';
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         }
 
-        // Function to load data into local storage
-        function loadLocalStorage(event) {
+        function openFileSelector() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.click();
+            fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        function handleFileSelect(event) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    localStorage.setItem('RetroBowl.0.savedata.ini', e.target.result);
-                    alert('File loaded into local storage');
-                };
-                reader.readAsText(file);
-            }
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fileContent = e.target.result;
+                localStorage.clear();
+                const data = JSON.parse(fileContent);
+                for (const key in data) {
+                    localStorage.setItem(key, data[key]);
+                }
+            };
+            reader.readAsText(file);
         }
-
-        // Ensure the file input is triggered on . key press
-        document.addEventListener('keydown', (event) => {
-            if (event.key === '`') {
-                downloadLocalStorage();
-            } else if (event.key === '.') {
-                document.getElementById('fileInput').click();
-            }
-        });
-
-        // File input change event listener
-        document.getElementById('fileInput').addEventListener('change', loadLocalStorage);
-    </script>
+    
 </body>
 </html>
