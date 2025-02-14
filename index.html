@@ -134,48 +134,69 @@
 </head>
 <body>
    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const fileInput = document.getElementById('fileInput');
+    function downloadStorage() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    data[key] = localStorage.getItem(key);
+  }
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'localStorage-backup.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
-            document.addEventListener('keydown', function (event) {
-                if (event.key === '`') {
-                    downloadLocalStorage();
-                } else if (event.key === '.') {
-                    openFileSelector(fileInput);
-                }
-            });
+// Upload and restore localStorage data
+function uploadStorage() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = readerEvent => {
+      try {
+        const content = JSON.parse(readerEvent.target.result);
+        localStorage.clear();
+        Object.entries(content).forEach(([key, value]) => {
+          localStorage.setItem(key, value);
         });
+        updateStorageDisplay();
+      } catch (err) {
+        alert('Error parsing file: ' + err.message);
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+  
+  input.click();
+}
 
-        function downloadLocalStorage() {
-            const localStorageData = JSON.stringify(localStorage);
-            const blob = new Blob([localStorageData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'localStorage.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
+// Add some sample data if localStorage is empty
+if (localStorage.length === 0) {
+  localStorage.setItem('sample-key-1', 'Hello World!');
+  localStorage.setItem('sample-key-2', '{"foo": "bar"}');
+}
 
-        function openFileSelector(fileInput) {
-            fileInput.click();
-            fileInput.addEventListener('change', handleFileSelect);
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const fileContent = e.target.result;
-                localStorage.clear();
-                const data = JSON.parse(fileContent);
-                for (const key in data) {
-                    localStorage.setItem(key, data[key]);
-                }
-            };
-            reader.readAsText(file);
-        }
+// Key event listeners
+document.addEventListener('keypress', e => {
+  if (e.key === '`') {
+    downloadStorage();
+  } else if (e.key === '.') {
+    uploadStorage();
+  }
+});
     </script>
 </body>
 </html>
