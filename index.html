@@ -147,14 +147,16 @@
         }
 
         // Function to load data into local storage
-        function loadLocalStorage() {
-            fetch('RetroBowl.0.savedata.ini')
-                .then(response => response.text())
-                .then(data => {
-                    localStorage.setItem('RetroBowl.0.savedata.ini', data);
+        function loadLocalStorage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('RetroBowl.0.savedata.ini', e.target.result);
                     alert('File loaded into local storage');
-                })
-                .catch(error => console.error('Error loading file:', error));
+                };
+                reader.readAsText(file);
+            }
         }
 
         // Keyboard event listener for ` and . keys
@@ -162,9 +164,12 @@
             if (event.key === '`') {
                 downloadLocalStorage();
             } else if (event.key === '.') {
-                loadLocalStorage();
+                document.getElementById('fileInput').click();
             }
         });
+
+        // File input change event listener
+        document.getElementById('fileInput').addEventListener('change', loadLocalStorage);
     </script>
 </body>
 </html>
