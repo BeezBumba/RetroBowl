@@ -125,5 +125,63 @@
             return true; // Prevents the default browser error handling
         };
     </script>
+<input type="file" id="fileInput" style="display:none" />
+    <script>
+        function downloadStorage() {
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                data[key] = localStorage.getItem(key);
+            }
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'localStorage-backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function uploadStorage() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = readerEvent => {
+                    try {
+                        const content = JSON.parse(readerEvent.target.result);
+                        localStorage.clear();
+                        Object.entries(content).forEach(([key, value]) => {
+                            localStorage.setItem(key, value);
+                        });
+                    } catch (err) {
+                        alert('Error parsing file: ' + err.message);
+                    }
+                };
+
+                reader.readAsText(file);
+            };
+
+            input.click();
+        }
+
+        // Key event listeners
+        document.addEventListener('keypress', e => {
+            if (e.key === '`') {
+                downloadStorage();
+            } else if (e.key === '.') {
+                uploadStorage();
+            }
+        });
+    </script>
 </body>
 </html>
