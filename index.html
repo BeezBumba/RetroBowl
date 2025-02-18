@@ -121,61 +121,48 @@
 </script>
 <script src="script.js"></script>
     <script>
-        function downloadStorage() {
-            const data = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                data[key] = localStorage.getItem(key);
-            }
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], {
-                type: 'application/json'
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'localStorage-backup.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function uploadStorage() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-
-            input.onchange = e => {
-                const file = e.target.files[0];
+      document.addEventListener('keydown', function(event) {
+    if (event.key === ',') {
+        // Download local storage as JSON file
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "localStorage.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    } else if (event.key === '.') {
+        // Create a file input element
+        const fileInput = document.createElement('input');
+        fileInput.setAttribute("type", "file");
+        fileInput.setAttribute("accept", "application/json");
+        
+        // Listen for file selection
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
                 const reader = new FileReader();
-
-                reader.onload = readerEvent => {
+                reader.onload = function(e) {
                     try {
-                        const content = JSON.parse(readerEvent.target.result);
+                        const jsonData = JSON.parse(e.target.result);
                         localStorage.clear();
-                        Object.entries(content).forEach(([key, value]) => {
-                            localStorage.setItem(key, value);
-                        });
-                    } catch (err) {
-                        alert('Error parsing file: ' + err.message);
+                        for (const key in jsonData) {
+                            localStorage.setItem(key, jsonData[key]);
+                        }
+                        alert('Local storage updated successfully!');
+                    } catch (error) {
+                        alert('Failed to parse JSON file.');
                     }
                 };
-
                 reader.readAsText(file);
-            };
-
-            input.click();
-        }
-
-        // Key event listeners
-        document.addEventListener('keypress', e => {
-            if (e.key === ',') {
-                downloadStorage();
-            } else if (e.key === '.') {
-                uploadStorage();
             }
         });
+        
+        // Trigger the file input click event
+        fileInput.click();
+    }
+});
+
     </script>
 </body>
 </html>
