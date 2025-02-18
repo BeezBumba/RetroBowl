@@ -164,5 +164,32 @@
 });
 
     </script>
+
+    <script>
+        function triggerError() {
+            try {
+                // Simulate an error
+                nonExistentFunction();
+            } catch (error) {
+                notifyUser("An error occurred: " + error.message);
+            }
+        }
+
+        function notifyUser(message) {
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    new Notification("Error Notification", { body: message });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            new Notification("Error Notification", { body: message });
+                        }
+                    });
+                }
+            } else {
+                alert(message); // Fallback for browsers that do not support Notifications
+            }
+        }
+    </script>
 </body>
 </html>
